@@ -5,9 +5,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
-// Yeh line Next.js ko batati hai ke is page ko static na banaye (Vercel error fix)
-export const dynamic = 'force-dynamic';
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
@@ -24,6 +21,11 @@ export default function ProductDetailsPage() {
   const [mainImage, setMainImage] = useState<string>(DEFAULT_IMAGE);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false); // <-- Ye naya trick hai
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -114,6 +116,10 @@ export default function ProductDetailsPage() {
     alert("Product Cart Mein Add Ho Gaya! 🛒");
   };
 
+  if (!isMounted) {
+    return <div className="min-h-screen bg-[#faf6f0] flex items-center justify-center text-2xl font-serif">Loading Details...</div>;
+  }
+
   if (loading) {
     return <div className="min-h-screen bg-[#faf6f0] flex items-center justify-center text-2xl font-serif">Loading Details...</div>;
   }
@@ -129,7 +135,6 @@ export default function ProductDetailsPage() {
 
   return (
     <div className="min-h-screen bg-[#faf6f0] text-[#1a120c]">
-      {/* Navbar */}
       <nav className="bg-[#2a1d13] text-[#faf6f0] py-4 sticky top-0 z-50 shadow-md">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold tracking-[0.2em] font-serif text-white">
@@ -146,13 +151,8 @@ export default function ProductDetailsPage() {
         </div>
       </nav>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-16 flex flex-col md:flex-row gap-12">
-        
-        {/* Left: Images Gallery */}
         <div className="w-full md:w-1/2">
-          
-          {/* Main Image with Premium Arrows */}
           <div className="relative bg-white border border-gray-200 shadow-sm p-4 mb-4 group">
             <img 
               src={mainImage} 
@@ -160,7 +160,6 @@ export default function ProductDetailsPage() {
               className="w-full h-[500px] object-contain" 
             />
             
-            {/* Left Arrow */}
             {images.length > 1 && (
               <button 
                 onClick={prevImage}
@@ -172,7 +171,6 @@ export default function ProductDetailsPage() {
               </button>
             )}
 
-            {/* Right Arrow */}
             {images.length > 1 && (
               <button 
                 onClick={nextImage}
@@ -185,7 +183,6 @@ export default function ProductDetailsPage() {
             )}
           </div>
           
-          {/* Thumbnails */}
           {images.length > 1 && (
             <div className="grid grid-cols-5 gap-3">
               {images.map((img, index) => (
@@ -201,7 +198,6 @@ export default function ProductDetailsPage() {
           )}
         </div>
 
-        {/* Right: Product Info */}
         <div className="w-full md:w-1/2 flex flex-col justify-center">
           <p className="text-[#c9a35a] text-sm tracking-widest uppercase mb-2">{product.category}</p>
           <h1 className="text-4xl font-serif mb-4">{product.name}</h1>
