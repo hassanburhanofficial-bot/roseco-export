@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
-// Yeh line Vercel build error ko fix karti hai
+// Yeh line Next.js ko batati hai ke is page ko static na banaye (Vercel error fix)
 export const dynamic = 'force-dynamic';
 
 const supabase = createClient(
