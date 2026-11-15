@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
+// Direct hardcoded keys (Vercel env variables ka jhanjhat khatam)
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+  "https://otzotelxsuysszrezjld.supabase.co",
+  "sb_publishable_Kw-Q9QGW3bXaIEmCmkRkIA_Qz_i470m"
 );
 
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=500&q=80";
@@ -17,9 +18,9 @@ export default function ShopPage() {
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   
-  // --- PAGINATION STATE ---
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12; // Har page par 12 items
+  const itemsPerPage = 12;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -39,14 +40,12 @@ export default function ShopPage() {
     fetchProducts();
   }, []);
 
-  // Filter Logic
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = category === "All" || p.category === category;
     return matchesSearch && matchesCategory;
   });
 
-  // --- PAGINATION LOGIC ---
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
@@ -125,7 +124,6 @@ export default function ShopPage() {
             <p className="text-sm text-gray-500 font-medium tracking-wide uppercase">Showing {filteredProducts.length} Items</p>
           </div>
 
-          {/* Product Grid */}
           {loading ? (
             <div className="text-center py-32 text-xl font-serif text-gray-500 animate-pulse">Loading Collection...</div>
           ) : (
@@ -155,8 +153,8 @@ export default function ShopPage() {
                 ))}
               </div>
 
-              {/* Pagination Controls - Always Visible if products exist */}
-              {filteredProducts.length > 0 && (
+              {/* Pagination */}
+              {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-16 border-t border-gray-300 pt-8">
                   <button 
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -166,8 +164,7 @@ export default function ShopPage() {
                     Prev
                   </button>
                   
-                  {/* Agar totalPages 1 hai (yani 12 se kam products hain), toh bhi Page 1 dikhao */}
-                  {Array.from({ length: Math.max(totalPages, 1) }, (_, i) => i + 1).map(page => (
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
@@ -178,8 +175,8 @@ export default function ShopPage() {
                   ))}
 
                   <button 
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.max(totalPages, 1)))}
-                    disabled={currentPage === Math.max(totalPages, 1)}
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
                     className="px-4 py-2 border border-gray-300 text-sm disabled:opacity-50 hover:bg-gray-100 transition"
                   >
                     Next
